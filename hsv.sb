@@ -1,0 +1,107 @@
+Sensor.SetMode(2, 4)
+h = 0
+s = 0
+v = 0 
+Sub pv   ‘вывод на экран р г б
+  r = Sensor.ReadRawValue(2,0)
+  g = Sensor.ReadRawValue(2,1)
+  b = Sensor.ReadRawValue(2,2)
+  LCD.Clear()
+  LCD.Text(1,10,40,1, "r " + r)
+  LCD.Text(1,10,50,1, "g " + g)
+  LCD.Text(1,10,60,1, "b " + b)
+EndSub
+
+
+Sub hsv
+  max = 0
+  min = 0
+  r = Sensor.ReadRawValue(2,0)
+  g = Sensor.ReadRawValue(2,1)
+  b = Sensor.ReadRawValue(2,2)
+ 
+  r1 = r/255 
+  g1 = g/255 
+  b1 = b/255 
+  'max count
+  If (r1 > g1) And (r1 > b1) Then
+      max = r1
+    Endif
+  If (g1 > r1) And (g1 > b1) Then
+      max = g1
+    EndIf
+  If (b1 > r1) And (b1 > g1) Then
+      max = b1
+    EndIf
+    'min count 
+  If (r1 < g1) And (r1 < b1) Then
+      min = r1
+    Endif
+  If (g1 < r1) And (g1 < b1) Then
+      min = g1
+    EndIf
+  If (b1 < r1) And (b1 < g1) Then
+      min = b1
+    EndIf
+    
+    'h count
+    If (max >= min) And (min <= max) Then
+      h = 0
+      ' if H == 0
+    EndIf
+    If (min <> max) Then
+      If (max <> r1) Then
+        If (max <> g1) Then
+          h = 60 * (r1 - g1)/(max - min)+240
+        Else
+          h = 60*(b1 -r1)/(max-min) + 120
+        EndIf
+      Else 
+        If (g1 >= b1) Then
+          h = 60 *(g1 - b1)/ (max - min)
+        Else
+          h = 60 * (g1 - b1)/ (max - min) + 360
+        EndIf
+      EndIf
+  EndIf
+  'S count
+  
+  If (max  <> 0)Then
+    s = 1 - min /max
+    v = max
+  Else
+    s = 0
+    v = max
+  EndIf
+
+         
+EndSub
+
+Sub def    ‘готовый вывод цветов по индексу
+  If (h < 50)  Then'red 
+    LCD.Clear()
+    LCD.Text(1,10,90,1, "Yellow")
+  EndIf
+  If (h > 50) And (h < 120) Then
+    LCD.Clear()
+    LCD.Text(1,10,90,1, "Yellow")
+  EndIf
+  If (h > 120) And (h < 190) Then
+    LCD.Clear()
+    LCD.Text(1,10,90,1, "Green")
+  EndIf
+  If (h > 190) And (h < 290) Then
+    LCD.Clear()
+    LCD.Text(1,10,90,1, "Blue")
+  EndIf
+  If (h > 290) And (h < 360)  Then'red
+    LCD.Clear()
+    LCD.Text(1,10,90,1, "Red")
+  EndIf
+  
+EndSub
+
+While("True")
+  hsv()
+  def()
+EndWhile
